@@ -1,0 +1,19 @@
+version: "2"
+services:
+  base:
+    build: .
+    working_dir: /opt/app
+    volumes:
+      - .:/opt/app
+    environment:
+      PYTHONPATH: /opt/app
+
+  mock:
+    extends:
+      service: base
+    container_name: "circalamp_mock"
+    volumes:
+      - .:/opt/app
+    command: bash /opt/app/run.sh
+    ports:
+      - 5000:5000
