@@ -3,6 +3,10 @@
 #include <Wire.h>
 #include <RTClib.h>
 
+#define FASTLED_INTERNAL // skip pragma output
+#include "FastLED.h"
+#include "LedTemplates.h"
+
 #ifndef ESP01SPEED
 #define ESP01SPEED 9600
 #define SERIALSPEED 115200
@@ -21,6 +25,12 @@ unsigned long lastEspChar;
 String alarmTime;
 bool alarmSwitch = false;
 bool alarmOn = false;
+
+#define NUM_LEDS 30
+#define LED_STRIP_PIN 5
+
+CRGB leds[NUM_LEDS];
+FirstLight firstLight(leds, NUM_LEDS);
 
 void handleDemo(String command)
 {
@@ -184,6 +194,10 @@ void setup()
   char alarmBuf[] = "hh:mm";
   alarmTime = now.toString(alarmBuf);
   lastEspChar = millis();
+
+  FastLED.addLeds<WS2811, LED_STRIP_PIN>(leds, NUM_LEDS);
+  firstLight.reset();
+  FastLED.show();
 }
 
 void loop() // run over and over
@@ -201,6 +215,9 @@ void loop() // run over and over
   if (alarmOn)
   {
     digitalWrite(led, HIGH);
+    firstLight.update();
+    FastLED.show();
+    delay(100);
   }
   if (esp.available())
   {
