@@ -3,11 +3,9 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-#ifndef STASSID
-#define STASSID "ssid"
-#define STAPSK "pass"
+#include "network.h"
+
 #define SERIALSPEED 9600
-#define HOSTNAME "circalamp"
 
 #define TEXTPLAIN "text/plain"
 #define TEXTHTML "text/html"
@@ -18,10 +16,8 @@
 #define NOT_ALLOWED 405
 #define GWY_TIMEOUT 504
 
-#endif
-
-const char *ssid = STASSID;
-const char *password = STAPSK;
+const char *ssid = CIRCALAMP_STASSID;
+const char *password = CIRCALAMP_STAPSK;
 
 ESP8266WebServer server(80);
 
@@ -215,10 +211,10 @@ void setup(void)
   Serial.print(":");
   Serial.println(WiFi.localIP());
 
-  if (MDNS.begin(HOSTNAME))
+  if (MDNS.begin(CIRCALAMP_HOSTNAME))
   {
     Serial.print("DBG MDNS responder started on ");
-    Serial.println(HOSTNAME);
+    Serial.println(CIRCALAMP_HOSTNAME);
   }
 
   server.on("/", handleRoot);
