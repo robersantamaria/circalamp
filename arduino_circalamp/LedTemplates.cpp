@@ -7,14 +7,25 @@ FirstLight::FirstLight(CRGB *leds, int num_leds)
 {
   _leds = leds;
   _num_leds = num_leds;
+  _interval = 100;
   _hue = 0;
   _bright = 0;
   _hue_dir = +1;
   _bright_dir = +3;
+  this->reset();
 }
 
-void FirstLight::update()
+bool FirstLight::update()
 {
+  int now = millis();
+  if (now + this->_interval >= this->_last_update)
+  {
+    this->_last_update = now;
+  }
+  else
+  {
+    return false;
+  }
   _hue = _hue + _hue_dir;
   if (_hue >= 255 || _hue <= 0)
   {
@@ -29,6 +40,7 @@ void FirstLight::update()
   {
     _leds[i] = CHSV(_hue, 255, _bright);
   }
+  return true;
 }
 
 void FirstLight::reset()
