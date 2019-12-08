@@ -38,7 +38,7 @@ private:
   int _bright_dir;
 };
 
-#define WARMUP_INTERVAL 50           // in millis
+#define WARMUP_INTERVAL 1000         // in millis
 #define WARMUP_LED_INTERVAL 60       // one more led each minute (for 1 sec interval)
 #define WARMUP_BRIGHTNESS_INTERVAL 6 // reach full brightness in 25 min (for 1 sec interval)
 

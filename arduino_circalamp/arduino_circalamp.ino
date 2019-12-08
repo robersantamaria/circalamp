@@ -30,7 +30,7 @@ bool alarmOn = false;
 #define LED_STRIP_PIN 5
 
 CRGB leds[NUM_LEDS];
-FirstLight firstLight(leds, NUM_LEDS);
+WarmUp lightSet;
 
 void handleDemo(String command)
 {
@@ -195,8 +195,8 @@ void setup()
   alarmTime = now.toString(alarmBuf);
   lastEspChar = millis();
 
+  lightSet.init(leds, NUM_LEDS);
   FastLED.addLeds<WS2811, LED_STRIP_PIN>(leds, NUM_LEDS);
-  firstLight.reset();
   FastLED.show();
 }
 
@@ -214,10 +214,10 @@ void loop() // run over and over
   }
   if (alarmOn)
   {
-    digitalWrite(led, HIGH);
-    firstLight.update();
-    FastLED.show();
-    delay(100);
+    if (lightSet.update())
+    {
+      FastLED.show();
+    };
   }
   if (esp.available())
   {
