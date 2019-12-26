@@ -10,8 +10,8 @@
 #ifndef ESP01SPEED
 #define ESP01SPEED 9600
 #define SERIALSPEED 115200
-#define RX_PIN 9 // fixed by AltSoftSerial, constant unused
-#define TX_PIN 8 // fixed by AltSoftSerial, constant unused
+#define RX_PIN 9 // fixed by AltSoftSerial, cannot be altered (constant unused)
+#define TX_PIN 8 // fixed by AltSoftSerial, cannot be altered (constant unused)
 #endif
 
 AltSoftSerial esp;
