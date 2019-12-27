@@ -11,6 +11,7 @@ public:
   void init(CRGB *leds, int num_leds);
   virtual bool update();
   virtual void reset();
+  virtual bool over();
 
 protected:
   void setInterval(unsigned int interval);
@@ -30,6 +31,7 @@ class FirstLight : public CircalampLightSet
 public:
   virtual bool update();
   virtual void reset();
+  virtual bool over();
 
 private:
   uint8_t _hue;
@@ -38,29 +40,34 @@ private:
   int _bright_dir;
 };
 
-#define WARMUP_INTERVAL 1000         // in millis
+#define WARMUP_INTERVAL 1000         // in millis (default to 1000)
 #define WARMUP_LED_INTERVAL 60       // one more led each minute (for 1 sec interval)
 #define WARMUP_BRIGHTNESS_INTERVAL 6 // reach full brightness in 25 min (for 1 sec interval)
+#define WARMUP_STATIC_DURATION 300   // 5 min at top brightness (for 1 sec interval)
 
 class WarmUp : public CircalampLightSet
 {
 public:
   virtual bool update();
   virtual void reset();
+  virtual bool over();
 
 private:
   int _i;
   int _active_leds;
   int _saturation;
+  int _static_duration;
 };
 
 #define RAINBOW_INTERVAL 5000 // in millis
 #define RAINBOW_STATES 25
+
 class Rainbow : public CircalampLightSet
 {
 public:
   virtual bool update();
   virtual void reset();
+  virtual bool over();
 
 private:
   int _state_n;
