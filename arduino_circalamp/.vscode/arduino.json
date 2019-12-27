@@ -1,5 +1,5 @@
 {
     "board": "arduino:avr:uno",
-    "port": "/dev/cu.usbmodem14141",
+    "port": "/dev/cu.usbmodem14641",
     "sketch": "arduino_circalamp.ino"
 }

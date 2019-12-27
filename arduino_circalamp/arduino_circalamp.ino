@@ -25,6 +25,7 @@ unsigned long lastEspChar;
 String alarmTime;
 bool alarmSwitch = false;
 bool alarmOn = false;
+bool alarmRunning = false;
 
 #define NUM_LEDS 30
 #define LED_STRIP_PIN 5
@@ -37,13 +38,11 @@ void handleDemo(String command)
   if (command == "DEMO SET on")
   {
     Serial.println("START DEMO");
-    digitalWrite(led, HIGH);
     alarmOn = true;
   }
   else if (command == "DEMO SET off")
   {
     Serial.println("STOP DEMO");
-    digitalWrite(led, LOW);
     alarmOn = false;
   }
 }
@@ -213,13 +212,33 @@ void loop() // run over and over
       alarmOn = true;
     }
   }
+
   if (alarmOn)
   {
+    digitalWrite(led, HIGH);
+    alarmRunning = true;
     if (lightSet.update())
     {
       FastLED.show();
     };
+
+    if (lightSet.over())
+    {
+      alarmOn = false;
+    }
   }
+
+  if (alarmRunning)
+  {
+    if (!alarmOn)
+    {
+      digitalWrite(led, LOW);
+      lightSet.reset();
+      FastLED.show();
+      alarmRunning = false;
+    }
+  }
+
   if (esp.available())
   {
     char c = (char)esp.read();

@@ -29,6 +29,11 @@ bool CircalampLightSet::needsUpdate()
   }
 }
 
+bool CircalampLightSet::over()
+{
+  return false;
+}
+
 void CircalampLightSet::reset()
 {
   for (int i = 0; i < _num_leds; i++)
@@ -74,6 +79,11 @@ bool FirstLight::update()
   return false;
 }
 
+bool FirstLight::over()
+{
+  return false;
+}
+
 // ****************
 // *    WarmUp    *
 // ****************
@@ -83,6 +93,7 @@ void WarmUp::reset()
   _i = -1;
   _active_leds = 0;
   _saturation = 255;
+  _static_duration = 0;
   this->setInterval(WARMUP_INTERVAL);
   CircalampLightSet::reset();
 }
@@ -121,11 +132,25 @@ bool WarmUp::update()
       }
 
       _leds[n] = CHSV(HSV_RED_VALUE, _saturation, _brightness);
+      if (n == (_num_leds - 1) && _brightness == 255)
+      {
+        _static_duration = _static_duration + 1;
+      }
     }
+
     return true;
   }
   return false;
 }
+
+bool WarmUp::over()
+{
+  return _static_duration >= WARMUP_STATIC_DURATION;
+}
+
+// ****************
+// *    Rainbow   *
+// ****************
 
 void Rainbow::reset()
 {
@@ -178,5 +203,10 @@ bool Rainbow::update()
     }
     return true;
   }
+  return false;
+}
+
+bool Rainbow::over()
+{
   return false;
 }
