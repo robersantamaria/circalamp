@@ -169,6 +169,24 @@ void handleCommands(String command)
   }
 }
 
+void kernelPanic()
+{
+  int ledState = LOW;
+  while (true)
+  {
+    if (ledState == LOW)
+    {
+      ledState = HIGH;
+    }
+    else
+    {
+      ledState = LOW;
+    }
+    digitalWrite(DEMO_LED_PIN, ledState);
+    delay(200);
+  }
+}
+
 void setup()
 {
   // set the data rate for the SoftwareSerial port
@@ -182,25 +200,25 @@ void setup()
     ; // wait for serial port to connect. Needed for Native USB only
   }
 
-  Serial.println("Finding RTC");
+  Serial.print("Searching RTC... ");
   if (!rtc.begin())
   {
-    Serial.println("Couldn't find RTC");
+    Serial.println("couldn't find RTC, stopping.");
+    kernelPanic();
   }
-  Serial.println("RTC Found");
+  Serial.print("found; ");
 
   if (rtc.lostPower())
   {
-    Serial.println("RTC lost power, lets set the time!");
+    Serial.println("RTC lost power, setting clock to compilation time.");
     // following line sets the RTC to the date & time this sketch was compiled
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
   else
   {
-    Serial.println("RTC time is OK");
+    Serial.println("time is OK.");
   }
 
-  Serial.println("Arduino start!");
   DateTime now = rtc.now();
   Serial.print("Startup time is ");
   Serial.println(now.timestamp());
