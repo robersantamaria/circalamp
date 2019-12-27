@@ -10,8 +10,8 @@
 #ifndef ESP01SPEED
 #define ESP01SPEED 9600
 #define SERIALSPEED 115200
-#define RX_PIN 9 // fixed by AltSoftSerial, constant unused
-#define TX_PIN 8 // fixed by AltSoftSerial, constant unused
+#define RX_PIN 9 // fixed by AltSoftSerial, cannot be altered (constant unused)
+#define TX_PIN 8 // fixed by AltSoftSerial, cannot be altered (constant unused)
 #endif
 
 AltSoftSerial esp;
@@ -30,7 +30,7 @@ bool alarmOn = false;
 #define LED_STRIP_PIN 5
 
 CRGB leds[NUM_LEDS];
-FirstLight firstLight(leds, NUM_LEDS);
+WarmUp lightSet;
 
 void handleDemo(String command)
 {
@@ -38,11 +38,13 @@ void handleDemo(String command)
   {
     Serial.println("START DEMO");
     digitalWrite(led, HIGH);
+    alarmOn = true;
   }
   else if (command == "DEMO SET off")
   {
     Serial.println("STOP DEMO");
     digitalWrite(led, LOW);
+    alarmOn = false;
   }
 }
 
@@ -187,16 +189,15 @@ void setup()
   }
 
   Serial.println("Arduino start!");
-  char buf[] = "YYYYMMDDThh:mm:ss";
   DateTime now = rtc.now();
-  Serial.println(now.toString(buf));
+  Serial.print("Startup time is ");
   Serial.println(now.timestamp());
   char alarmBuf[] = "hh:mm";
   alarmTime = now.toString(alarmBuf);
   lastEspChar = millis();
 
+  lightSet.init(leds, NUM_LEDS);
   FastLED.addLeds<WS2811, LED_STRIP_PIN>(leds, NUM_LEDS);
-  firstLight.reset();
   FastLED.show();
 }
 
@@ -214,10 +215,10 @@ void loop() // run over and over
   }
   if (alarmOn)
   {
-    digitalWrite(led, HIGH);
-    firstLight.update();
-    FastLED.show();
-    delay(100);
+    if (lightSet.update())
+    {
+      FastLED.show();
+    };
   }
   if (esp.available())
   {

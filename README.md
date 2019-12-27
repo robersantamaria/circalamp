@@ -1,6 +1,6 @@
 # circalamp
-Arduinuish circadian lamp
 
+Arduinuish circadian lamp
 
 # esp-01 / esp-01s
 
@@ -13,6 +13,7 @@ Arduinuish circadian lamp
 > debug logging is at 74880 baud rate.
 
 Resources:
+
 - [A Python-based, open source, platform independent, utility to communicate with the ROM bootloader in Espressif ESP8266 & ESP32 chips](https://github.com/espressif/esptool).
 - Flash firmware:
   - https://www.allaboutcircuits.com/projects/flashing-the-ESP-01-firmware-to-SDK-v2.0.0-is-easier-now/
@@ -25,7 +26,10 @@ Resources:
 
 - Drivers: https://www.ftdichip.com/Drivers/VCP.htm
 
-
 # Arduino
 
 - [`millis()` rollover discussion](https://arduino.stackexchange.com/questions/12587/how-can-i-handle-the-millis-rollover).
+
+# General
+
+- Inspiration: [Circadia - sunrise lamp](https://sites.google.com/site/fpgaandco/sunrise)

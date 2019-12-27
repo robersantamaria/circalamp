@@ -1,22 +1,70 @@
 #ifndef LedTemplates_h
 #define LedTemplates_h
 
-class FirstLight
+#define HSV_YELLOW_VALUE 64
+#define HSV_ORANGE_VALUE 80
+#define HSV_RED_VALUE 96
+
+class CircalampLightSet
 {
 public:
-  FirstLight(CRGB *leds, int num_leds);
-  bool update();
-  void reset();
+  void init(CRGB *leds, int num_leds);
+  virtual bool update();
+  virtual void reset();
 
-private:
+protected:
+  void setInterval(unsigned int interval);
+  bool needsUpdate();
   int _num_leds;
   CRGB *_leds;
-  int _interval; // in millis
+  unsigned long _last_update;
+
+private:
+  unsigned int _interval; // in millis
+};
+
+#define FIRST_LIGHT_INTERVAL 100 // in millis
+
+class FirstLight : public CircalampLightSet
+{
+public:
+  virtual bool update();
+  virtual void reset();
+
+private:
   uint8_t _hue;
   uint8_t _bright;
   int _hue_dir;
   int _bright_dir;
-  int _last_update;
+};
+
+#define WARMUP_INTERVAL 1000         // in millis
+#define WARMUP_LED_INTERVAL 60       // one more led each minute (for 1 sec interval)
+#define WARMUP_BRIGHTNESS_INTERVAL 6 // reach full brightness in 25 min (for 1 sec interval)
+
+class WarmUp : public CircalampLightSet
+{
+public:
+  virtual bool update();
+  virtual void reset();
+
+private:
+  int _i;
+  int _active_leds;
+  int _saturation;
+};
+
+#define RAINBOW_INTERVAL 5000 // in millis
+#define RAINBOW_STATES 25
+class Rainbow : public CircalampLightSet
+{
+public:
+  virtual bool update();
+  virtual void reset();
+
+private:
+  int _state_n;
+  CHSV _states[RAINBOW_STATES];
 };
 
 #endif
