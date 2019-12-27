@@ -17,7 +17,6 @@
 AltSoftSerial esp;
 RTC_DS3231 rtc;
 
-int led = 13;
 String inputString = "";
 bool stringComplete = false;
 unsigned long lastEspChar;
@@ -33,9 +32,19 @@ bool alarmRunning = false;
 
 #define NUM_LEDS 30
 #define LED_STRIP_PIN 5
+#define DEMO_LED_PIN 13
 
 CRGB leds[NUM_LEDS];
 WarmUp lightSet;
+
+#define BUTTON_PIN 3
+int lastButtonState = LOW;
+int lastDebouncedState = LOW;
+int currentDebouncedState = LOW;
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 50; // in msec
+
+#define ESP_RESET_PIN 4
 
 void handleDemo(String command)
 {
@@ -189,11 +198,12 @@ void kernelPanic()
 
 void setup()
 {
-  // set the data rate for the SoftwareSerial port
-  esp.begin(ESP01SPEED);
+  pinMode(DEMO_LED_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT);
+  pinMode(ESP_RESET_PIN, OUTPUT);
+  digitalWrite(ESP_RESET_PIN, HIGH);
 
-  pinMode(led, OUTPUT);
-  // Open serial communications and wait for port to open:
+  esp.begin(ESP01SPEED);
   Serial.begin(SERIALSPEED);
   while (!Serial)
   {
@@ -231,6 +241,13 @@ void setup()
   lightSet.init(leds, NUM_LEDS);
   FastLED.addLeds<WS2811, LED_STRIP_PIN>(leds, NUM_LEDS);
   FastLED.show();
+
+  delay(1000);
+  Serial.print("Resetting ESP... ");
+  digitalWrite(ESP_RESET_PIN, LOW);
+  delay(50);
+  digitalWrite(ESP_RESET_PIN, HIGH);
+  Serial.println("done.");
 }
 
 void loop() // run over and over
@@ -246,9 +263,33 @@ void loop() // run over and over
     }
   }
 
+  int buttonReading = digitalRead(BUTTON_PIN);
+  if (buttonReading != lastButtonState)
+  {
+    lastDebounceTime = millis();
+  }
+  lastButtonState = buttonReading;
+
+  if ((millis() - lastDebounceTime) > debounceDelay)
+  {
+    currentDebouncedState = buttonReading;
+  }
+
+  if (lastDebouncedState == LOW & currentDebouncedState == HIGH)
+  {
+    lastDebouncedState = HIGH;
+    Serial.println("Button pressed, holding on.");
+  }
+  if (lastDebouncedState == HIGH & currentDebouncedState == LOW)
+  {
+    lastDebouncedState = LOW;
+    Serial.println("Button unpressed, switching alarm off.");
+    alarmOn = false;
+  }
+
   if (alarmOn)
   {
-    digitalWrite(led, HIGH);
+    digitalWrite(DEMO_LED_PIN, HIGH);
     alarmRunning = true;
     if (lightSet.update())
     {
@@ -265,7 +306,7 @@ void loop() // run over and over
   {
     if (!alarmOn)
     {
-      digitalWrite(led, LOW);
+      digitalWrite(DEMO_LED_PIN, LOW);
       lightSet.reset();
       FastLED.show();
       alarmRunning = false;
