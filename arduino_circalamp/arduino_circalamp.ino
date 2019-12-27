@@ -22,8 +22,12 @@ String inputString = "";
 bool stringComplete = false;
 unsigned long lastEspChar;
 
-String alarmTime;
-bool alarmSwitch = false;
+struct AlarmSettings
+{
+  bool enabled;
+  char time[6];
+};
+AlarmSettings alarm;
 bool alarmOn = false;
 bool alarmRunning = false;
 
@@ -92,17 +96,24 @@ void handleAlarm(String command)
 {
   if (command.startsWith("ALARM GET"))
   {
-    // Serial.println(alarmTime);
-    String output = alarmTime + " ";
-    if (alarmSwitch)
+    char output[10];
+    strcpy(output, alarm.time);
+    output[5] = ' ';
+    if (alarm.enabled)
     {
-      output += "on";
+      output[6] = 'o';
+      output[7] = 'n';
+      output[8] = '\0';
     }
     else
     {
-      output += "off";
+      output[6] = 'o';
+      output[7] = 'f';
+      output[8] = 'f';
+      output[9] = '\0';
     }
-    Serial.println("Sending " + output);
+    Serial.print("Sending ");
+    Serial.println(output);
     esp.println(output);
   }
   else if (command.startsWith("ALARM_TIME SET"))
@@ -110,11 +121,9 @@ void handleAlarm(String command)
     String newAlarmTime = command.substring(14);
     newAlarmTime.trim();
     int i = newAlarmTime.indexOf(':');
-    Serial.print("i es: ");
-    Serial.println(i);
     if (i == 2 & newAlarmTime.length() == 5)
     {
-      alarmTime = newAlarmTime;
+      newAlarmTime.toCharArray(alarm.time, 6);
     }
   }
   else if (command.startsWith("ALARM_SWITCH SET"))
@@ -122,7 +131,7 @@ void handleAlarm(String command)
     String newAlarmSwitch = command.substring(16);
     newAlarmSwitch.trim();
     newAlarmSwitch.toLowerCase();
-    alarmSwitch = newAlarmSwitch.equals("on");
+    alarm.enabled = newAlarmSwitch.equals("on");
   }
 }
 
@@ -192,7 +201,9 @@ void setup()
   Serial.print("Startup time is ");
   Serial.println(now.timestamp());
   char alarmBuf[] = "hh:mm";
-  alarmTime = now.toString(alarmBuf);
+  char *currentTime = now.toString(alarmBuf);
+  alarm.enabled = false;
+  strcpy(alarm.time, currentTime);
   lastEspChar = millis();
 
   lightSet.init(leds, NUM_LEDS);
@@ -202,12 +213,12 @@ void setup()
 
 void loop() // run over and over
 {
-  if (alarmSwitch & !alarmOn)
+  if (alarm.enabled & !alarmOn)
   {
     char alarmFormat[] = "hh:mm";
     DateTime now = rtc.now();
-    String currentTime = now.toString(alarmFormat);
-    if (currentTime.equals(alarmTime))
+    char *currentTime = now.toString(alarmFormat);
+    if (strcmp(currentTime, alarm.time) == 0)
     {
       alarmOn = true;
     }
