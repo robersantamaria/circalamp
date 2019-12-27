@@ -38,11 +38,13 @@ void handleDemo(String command)
   {
     Serial.println("START DEMO");
     digitalWrite(led, HIGH);
+    alarmOn = true;
   }
   else if (command == "DEMO SET off")
   {
     Serial.println("STOP DEMO");
     digitalWrite(led, LOW);
+    alarmOn = false;
   }
 }
 
@@ -187,9 +189,8 @@ void setup()
   }
 
   Serial.println("Arduino start!");
-  char buf[] = "YYYYMMDDThh:mm:ss";
   DateTime now = rtc.now();
-  Serial.println(now.toString(buf));
+  Serial.print("Startup time is ");
   Serial.println(now.timestamp());
   char alarmBuf[] = "hh:mm";
   alarmTime = now.toString(alarmBuf);
