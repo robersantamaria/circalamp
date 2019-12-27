@@ -150,6 +150,10 @@ void handleCommands(String command)
   {
     handleDebug(command);
   }
+  else if (command.startsWith("ROOT"))
+  {
+    handleDebug(command);
+  }
   else if (command.startsWith("TIME"))
   {
     handleTime(command);
